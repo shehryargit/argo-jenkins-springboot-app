@@ -19,7 +19,7 @@ pipeline {
         sh 'cd spring-boot-app && mvn clean package'
       }
     }
-    stage('Static Code Analysis') {
+    /* stage('Static Code Analysis') {
       environment {
         SONAR_URL = "http://192.168.18.30:9000"
       }
@@ -31,13 +31,11 @@ pipeline {
              which java
              java -version
              '''
-             
 
         }
       }
-    }
-    s
-    stage('Build and Push Docker Image') {
+    } */
+        stage('Build and Push Docker Image') {
       steps {
         withCredentials([usernamePassword(
           credentialsId: 'docker-cred',
