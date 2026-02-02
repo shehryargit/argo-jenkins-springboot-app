@@ -39,7 +39,7 @@ pipeline {
         }
       }
     } */
-    stage('Build and Push Docker Image') {
+   /*  stage('Build and Push Docker Image') {
       environment {
         DOCKER_IMAGE = "sheri047/ci-cd:${BUILD_NUMBER}"
         // DOCKERFILE_LOCATION = "java-maven-sonar-argocd-helm-k8s/spring-boot-app/Dockerfile"
@@ -54,7 +54,36 @@ pipeline {
             }
         }
       }
+    } */
+    stage('Build and Push Docker Image') {
+  agent {
+    docker {
+      image 'docker:27-cli'
+      args '-v /var/run/docker.sock:/var/run/docker.sock'
+      reuseNode true
     }
+  }
+
+  environment {
+    DOCKER_IMAGE = "sheri047/ci-cd:${BUILD_NUMBER}"
+  }
+
+  steps {
+    withCredentials([usernamePassword(
+      credentialsId: 'docker-cred',
+      usernameVariable: 'DOCKER_USER',
+      passwordVariable: 'DOCKER_PASS'
+    )]) {
+      sh '''
+        docker version
+        docker login -u $DOCKER_USER -p $DOCKER_PASS
+        docker build -t ${DOCKER_IMAGE} .
+        docker push ${DOCKER_IMAGE}
+      '''
+    }
+  }
+}
+
     stage('Update Deployment File') {
         environment {
             GIT_REPO_NAME = "argo-jenkins-springboot-app"
